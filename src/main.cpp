@@ -9,20 +9,30 @@ int factorial(int n) {
     return n * factorial(n - 1);
 }
 
+inline int square(int x) {
+    return x*x;
+}
+
 int main(int argc, char* argv[]) {
 
     // unary expressions
-    std::cout << EVAL(42) << std::endl; // --> 42
-    std::cout << EVAL(12.1) << std::endl; // --> 12.1
-    std::cout << EVAL(factorial(3)) << std::endl; // --> 6
+    TEST(42); // --> 42
+    TEST(12.1); // --> 12.1
+    TEST(factorial(3)); // --> 6
 
     // binary expressions
-    std::cout << EVAL(1 != 2) << std::endl; // --> 1 == 2
-    std::cout << EVAL(6 != factorial(3)) << std::endl; // --> 6 == 6
-    std::cout << EVAL(factorial(1) != factorial(0)) << std::endl; // --> 1 == 1
+    TEST(1 != 2); // --> 1 == 2
+    TEST(6 != factorial(3)); // --> 6 == 6
+    TEST(factorial(1) != factorial(0)); // --> 1 == 1
 
-    std::cout << EVAL((true || false) == true) << std::endl; // --> true == true
-    std::cout << EVAL(1 + 1 == factorial(0)) << std::endl;
+    TEST((true || false) == true); // --> true == true
+    TEST(1 + 1 == factorial(0));
+
+    // check that single call is maintained
+    TEST(square(2));
+    TEST(square(1) == 1);
+    TEST(9 == square(3));
+    TEST(9 + 1 == 1 + square(3));
 
     return 0;
 }

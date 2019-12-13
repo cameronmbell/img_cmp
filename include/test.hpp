@@ -96,8 +96,7 @@ namespace __test_details {
             if (force_support)
                 return;
 
-            // not so performant since the test for colout support
-            // only really needs to happen once.
+            // not so performant since the test for colour support only really needs to happen once.
 #if TEST_COLOUR_MODE == 1
             if (auto const env = std::getenv("TERM")) {
                 for (auto const& it : {
@@ -149,6 +148,28 @@ namespace __test_details {
         }
     };
 
+    template <typename T, typename S=std::ostream>
+    class CheckPrintability {
+        template <typename TT, typename SS> 
+        static auto check(int) -> decltype(std::declval<SS&>() << std::declval<TT>(), std::true_type());
+        template <typename TT, typename SS> 
+        static auto check(...) -> std::false_type;
+
+
+    public:
+        using value_type = decltype(check<T, S>(0));
+        static const bool value = value_type::value;
+
+        template <typename TT, typename SS> 
+        static auto conditional_write(const TT& t, SS& output) -> typename std::enable_if<(sizeof(TT), value), void>::type {
+            output << t;
+        }
+        template <typename TT, typename SS> 
+        static auto conditional_write(const TT& t, SS& output) -> typename std::enable_if<(sizeof(TT), !value), void>::type {
+            output << '[' << "unprintable @" << &(t) << ']';
+        }
+    };
+
     struct TokExpr { 
         virtual void write_string(std::ostream& output) const=0;
         virtual bool eval() const=0;
@@ -178,7 +199,9 @@ namespace __test_details {
             : m_l(l), m_r(r), m_op(op), m_value(value) { }
 
         void write_string(std::ostream& output) const OVERRIDE {
-            output << m_l << ' ' << m_op << ' ' << m_r;
+            CheckPrintability<L>::conditional_write(m_l, output);
+            output << ' ' << m_op << ' ';
+            CheckPrintability<R>::conditional_write(m_r, output);
         }
 
         bool eval() const OVERRIDE{
@@ -217,7 +240,7 @@ namespace __test_details {
             : m_l(l) { }
 
         void write_string(std::ostream& output) const OVERRIDE {
-            output << m_l;
+            CheckPrintability<L>::conditional_write(m_l, output);
         }
 
         bool eval() const OVERRIDE {

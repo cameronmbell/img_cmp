@@ -13,8 +13,9 @@ inline int square(int x) {
     return x*x;
 }
 
-int main(int argc, char* argv[]) {
-
+struct Unprintable {
+};
+int main(int argc, char* argv[]) { 
     // unary expressions
     TEST(42); // --> 42
     TEST(12.1); // --> 12.1
@@ -33,6 +34,12 @@ int main(int argc, char* argv[]) {
     TEST(square(1) == 1);
     TEST(9 == square(3));
     TEST(9 + 1 == 1 + square(3));
+
+    // push limits of printability
+    TEST(Unprintable());
+
+    std::cout << __test_details::CheckPrintability<int>::value << std::endl;
+    std::cout << __test_details::CheckPrintability<Unprintable>::value << std::endl;
 
     return 0;
 }
